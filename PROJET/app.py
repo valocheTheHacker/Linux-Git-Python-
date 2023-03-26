@@ -3,7 +3,7 @@ from dash import dcc
 from dash import html
 import datetime
 
-# Tickers
+
 btc_ticker = "BTC"
 xrp_ticker = "XRP"
 
@@ -13,11 +13,10 @@ data_btc = pd.read_csv("data_btc.csv", sep= " ", skipinitialspace=True)
 data_xrp = pd.read_csv("data_xrp.csv", sep= " ", skipinitialspace=True)
 
 
-# Crée une application Dash
+# Open Dash application
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
-
-# Chaque fois que l'utilisateur modifie la valeur du menu "ticker-dropdown" ou qu'on arrive à 5min, la fonction correspondante sera appelée pour mettre à jour le graphique avec l'ID "ticker-graph"
+# Manage drop down menu
 @app.callback(
     dash.dependencies.Output("ticker-graph", "figure"),
     [dash.dependencies.Input("ticker-dropdown", "value"), dash.dependencies.Input("interval-component", "n_intervals")]
@@ -29,32 +28,28 @@ def update_ticker_graph(ticker, n):
         data = data_btc
     else:
         data = data_xrp
-    #new_data = 
-    #data = pd.concat([data, new_data])
     
     fig = {
         "data": [{"x": data["Date"], "y": data["Close"], "type": "line", "line": {"color": "red"}}],
-        "layout": {"title": f"Graphique du cours du ({ticker})", "fontSize" : 20}
+        "layout": {"title": f"Graphic for ({ticker})", "fontSize" : 20}
     }
     
     return fig
 
-
-# Chaque fois que l'intervalle avec l'ID "interval-component" est atteint, la fonction correspondante sera appelée pour mettre à jour le texte de l'élément avec l'ID "update-time"
+# Manage time interval between updates
 @app.callback(
     dash.dependencies.Output("update-time", "children"),
     [dash.dependencies.Input("interval-component", "n_intervals")]
 )
 
 def update_time(n):
-    return f"Dernière mise à jour : {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (MÀJ automatique toutes les 5 min)"
+    return f"Mis à jour à: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
-
-# Ajoute un composant interval pour déclencher la mise à jour automatique
+# Manage automatic updates
 app.layout = html.Div([
     dcc.Interval(id="interval-component", interval=300 * 1000, n_intervals=0),
     html.Div([
-        html.H1("Financial Dashboard : Le BTC et le XRP (Sacha Fiereder)", style={'textAlign': 'center', 'color' : 'black', 'fontSize' : 30}),
+        html.H1("Financial Dashboard : BTC et XRP (Lina FAIROUD)", style={'textAlign': 'center', 'color' : 'black', 'fontSize' : 30}),
         
         dcc.Dropdown(
             id="ticker-dropdown",
@@ -70,7 +65,10 @@ app.layout = html.Div([
             id="ticker-graph"
         ),
         
-        html.Div("ADD DESCRIPTION", style={'textAlign': 'justify', 'color' : 'black', 'fontSize': 20}
+        html.Div("Bitcoin (BTC) is a cryptocurrency, a virtual currency designed to act as money and a form of payment outside the control of any one person, group, or entity, thus removing the need for third-party involvement in financial transactions. It is rewarded to blockchain miners for the work done to verify transactions and can be purchased on several exchanges.", style={'textAlign': 'justify', 'color' : 'black', 'fontSize': 20}
+        ),
+
+        html.Div("Ripple is a real-time, cryptocurrency gross-settlement system, currency exchange and remittance network created by Ripple Labs Inc, a US-based technology company. The company then created the XRP cryptocurrency, which it describes as a “digital asset built for global payments”.", style={'textAlign': 'justify', 'color' : 'black', 'fontSize': 20}
         ),
         
         html.Div(style={'textAlign': 'right', 'color' : 'red'},
@@ -78,7 +76,7 @@ app.layout = html.Div([
     ])
 ])
 
-# Lance l'application Dash
+# Launch dash application
 if __name__ == '__main__':
     app.run_server(debug = True, host='0.0.0.0')
 
